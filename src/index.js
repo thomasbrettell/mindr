@@ -4,11 +4,33 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import * as serviceWorker from './serviceWorker';
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+import { BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from './store/store';
+
+const theme = extendTheme({
+  light: {
+    bg: 'gray.50',
+  },
+  sizes: {
+    container: {
+      min: '280px',
+      xs: '450px',
+    },
+  },
+});
 
 ReactDOM.render(
   <StrictMode>
     <ColorModeScript />
-    <App />
+    <Provider store={store}>
+      <ChakraProvider theme={theme}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ChakraProvider>
+    </Provider>
   </StrictMode>,
   document.getElementById('root')
 );

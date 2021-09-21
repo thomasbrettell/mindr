@@ -1,41 +1,39 @@
-import React from 'react';
-import {
-  ChakraProvider,
-  Box,
-  Text,
-  Link,
-  VStack,
-  Code,
-  Grid,
-  theme,
-} from '@chakra-ui/react';
-import { ColorModeSwitcher } from './ColorModeSwitcher';
-import { Logo } from './Logo';
+import Layout from "./components/Layout";
+import {Route, Switch, Redirect} from "react-router-dom";
+import InitialPage from "./pages/Initial/InitialPage";
+import JoinPage from "./pages/Join/JoinPage";
+import {useSelector, useDispatch} from "react-redux";
+import {appActions} from "./store/app-slice";
+import {useHistory} from "react-router";
+import RoomPage from "./pages/Room/RoomPage";
 
 function App() {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const appIsLoaded = useSelector((state) => state.app.appIsLoaded);
+
+  if (!appIsLoaded) {
+    history.replace("/");
+    dispatch(appActions.SET_INITIAL_LOAD());
+  }
+
   return (
-    <ChakraProvider theme={theme}>
-      <Box textAlign="center" fontSize="xl">
-        <Grid minH="100vh" p={3}>
-          <ColorModeSwitcher justifySelf="flex-end" />
-          <VStack spacing={8}>
-            <Logo h="40vmin" pointerEvents="none" />
-            <Text>
-              Edit <Code fontSize="xl">src/App.js</Code> and save to reload.
-            </Text>
-            <Link
-              color="teal.500"
-              href="https://chakra-ui.com"
-              fontSize="2xl"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn Chakra
-            </Link>
-          </VStack>
-        </Grid>
-      </Box>
-    </ChakraProvider>
+    <Layout>
+      <Switch>
+        <Route path="/" exact>
+          <InitialPage />
+        </Route>
+        <Route path="/join" exact>
+          <JoinPage />
+        </Route>
+        <Route path="/room" exact>
+          <RoomPage />
+        </Route>
+        <Route path="*">
+          <Redirect to="/" />
+        </Route>
+      </Switch>
+    </Layout>
   );
 }
 
