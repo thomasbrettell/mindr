@@ -9,7 +9,7 @@ import {
   goOnline,
 } from "firebase/database";
 import {useSelector} from "react-redux";
-import TransformRoomData from "../../utils/TransformRoomData";
+import TransformRoomData from "../../utils/transformRoomData";
 import {roomActions} from "../../store/room-slice";
 import {useDispatch} from "react-redux";
 import WaitingRoom from "../../components/Room/WaitingRoom";
@@ -66,7 +66,7 @@ const RoomPage = () => {
   }
 
   if (roomData.started) {
-    return <StartedRoom />;
+    return <StartedRoom roomRef={roomRef} roomData={roomData}/>;
   }
 
   return (

@@ -1,29 +1,49 @@
-import {Image, Box, AspectRatio, Text, Flex} from "@chakra-ui/react";
+import {Box, Flex} from "@chakra-ui/react";
 import axios from "axios";
-import {useEffect, useState} from "react";
+import {useEffect, useState, useCallback} from "react";
 import CloseIcon from "../../assets/CloseIcon";
 import TickIcon from "../../assets/TickIcon";
+import popularMovies from "../../movieLists/popularMovies";
+import topRatedMovies from "../../movieLists/topRatedMovies";
+import {push, child} from "@firebase/database";
+import MovieImage from "./MovieImage";
 
-const StartedRoom = () => {
+const generateRandomMovie = () => {
+  const randomI = Math.floor(Math.random() * topRatedMovies.length);
+  return topRatedMovies[randomI];
+};
+
+const StartedRoom = (props) => {
   const [movie, setMovie] = useState();
-  const [movieId, setMovieId] = useState(500);
+  const [movieI, setMovieI] = useState(0);
+  const {roomData, roomRef} = props;
+
+  const pushNewMovie = useCallback(() => {
+    push(child(roomRef, "/movieList"), generateRandomMovie());
+  }, [roomRef]);
 
   useEffect(() => {
+    if (roomData.movieList.length === 0) {
+      return;
+    }
+
     axios
       .get(
-        `https://api.themoviedb.org/3/movie/${movieId}?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
+        `https://api.themoviedb.org/3/movie/${roomData.movieList[movieI]}?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
       )
       .then((response) => {
         setMovie(response.data);
-      })
-      .catch(() => {
-        setMovieId(Math.floor(Math.random() * 1000));
       });
-  }, [movieId]);
+  }, [movieI, roomData.movieList]);
 
   const newMovieHandler = () => {
-    setMovieId(Math.floor(Math.random() * 1000));
+    pushNewMovie();
+    setMovieI(movieI + 1);
   };
+
+  useEffect(() => {
+    pushNewMovie();
+  }, [pushNewMovie]);
 
   if (!movie) {
     return <p>Loading...</p>;
@@ -31,40 +51,7 @@ const StartedRoom = () => {
 
   return (
     <Box>
-      <AspectRatio
-        ratio={2 / 3}
-        h="full"
-        maxH="550px"
-        borderRadius="10px"
-        overflow="hidden"
-      >
-        <Box pos="relative">
-          <Box
-            pos="absolute"
-            w="full"
-            h="full"
-            d="flex"
-            p="15px"
-            bgGradient="linear(to-t, #000000c1, #00000000, #00000000, #00000000)"
-            alignItems="flex-end"
-            zIndex={1}
-          >
-            <Box color="white">
-              <Text fontSize="2xl" fontWeight="bold">
-                {movie.original_title}
-              </Text>
-              <Text>{new Date(movie.release_date).getFullYear()}</Text>
-            </Box>
-          </Box>
-          <Image
-            src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-            pos="absolute"
-            top="50%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-          />
-        </Box>
-      </AspectRatio>
+      <MovieImage movie={movie} />
       <Flex justifyContent="space-evenly" marginY="20px">
         <Box
           as="button"

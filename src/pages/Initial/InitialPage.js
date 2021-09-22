@@ -20,7 +20,7 @@ import LoadingOverlay from "../../components/LoadingOverlay";
 const InitialPage = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const appUsername = useSelector(state => state.app.userName)
+  const appUsername = useSelector((state) => state.app.userName);
   const [userName, setUserName] = useState(appUsername || "");
   const [roomOption, setRoomOption] = useState("");
   const createRoom = httpsCallable(functions, "createRoom");
@@ -46,7 +46,7 @@ const InitialPage = () => {
       createRoom({userName: userName})
         .then((result) => {
           dispatch(roomActions.SET_USER_ID(result.data.userId));
-          dispatch(roomActions.SET_ROOM_ID(result.data.roomId))
+          dispatch(roomActions.SET_ROOM_ID(result.data.roomId));
           history.push(`/room`);
         })
         .catch((error) => {
