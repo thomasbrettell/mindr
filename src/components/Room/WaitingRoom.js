@@ -2,7 +2,6 @@ import {
   Button,
   useClipboard,
   VStack,
-  Grid,
   Box,
   Table,
   Thead,
@@ -15,6 +14,7 @@ import StartButton from "../../components/Room/StartButton";
 import ReadyButton from "../../components/Room/ReadyButton";
 import UserTableUser from "../../components/Room/UserTableUser";
 import canRoomStart from "../../utils/canRoomStart";
+import ModeSelection from "./ModeSelection";
 
 const WaitingRoom = (props) => {
   const {userData, roomData, roomCode, userId, userRef, roomRef} = props;
@@ -48,36 +48,11 @@ const WaitingRoom = (props) => {
           {copyContent}
         </Button>
       </Box>
-      <Grid templateColumns="repeat(2, 1fr)" gap={4} w="full">
-        <Box
-          boxShadow="base"
-          p="6"
-          rounded="md"
-          w="100%"
-          bgGradient="linear(to-r, cyan.300, cyan.500)"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          color="white"
-          cursor="pointer"
-        >
-          Top rated films
-        </Box>
-        <Box
-          display="flex"
-          boxShadow="base"
-          p="6"
-          rounded="md"
-          w="100%"
-          bgGradient="linear(to-r, purple.300, purple.500)"
-          alignItems="center"
-          justifyContent="center"
-          color="white"
-          cursor="pointer"
-        >
-          Popular films
-        </Box>
-      </Grid>
+      <ModeSelection
+        roomRef={roomRef}
+        mode={roomData.mode || ""}
+        isHost={userData.isHost}
+      />
       <Box w="full" boxShadow="xs" p="2" rounded="md" backgroundColor="gray.50">
         <Table variant="simple">
           <Thead>
@@ -102,7 +77,7 @@ const WaitingRoom = (props) => {
       </Box>
       {userData.isHost && (
         <StartButton
-          canStart={canRoomStart(roomData.users)}
+          canStart={canRoomStart(roomData.users, roomData.mode)}
           roomRef={roomRef}
         />
       )}

@@ -1,17 +1,17 @@
-import {Image, Box, Text, AspectRatio} from "@chakra-ui/react";
-import { useState } from "react";
+import {Image, Box, Text, AspectRatio, Flex} from "@chakra-ui/react";
+import {useState} from "react";
 
 const MovieImage = (props) => {
   const {movie} = props;
-  const [hover, setHover] = useState(false)
+  const [hover, setHover] = useState(false);
 
   const mouseEnterHandler = () => {
-    setHover(true)
-  }
+    setHover(true);
+  };
 
   const mouseLeaveHandler = () => {
-    setHover(false)
-  }
+    setHover(false);
+  };
 
   return (
     <AspectRatio
@@ -30,7 +30,11 @@ const MovieImage = (props) => {
           h="full"
           d="flex"
           p="15px"
-          bgGradient="linear(to-t, #000000c1, #00000000, #00000000, #00000000)"
+          bgGradient={
+            !hover
+              ? "linear(to-t, #000000c1, #00000000, #00000000, #00000000)"
+              : "linear(to-t, #000000c1, #000000c1, #000000c1, #0000006e, #00000000)"
+          }
           alignItems="flex-end"
           zIndex={1}
         >
@@ -39,7 +43,26 @@ const MovieImage = (props) => {
               {movie.title}
             </Text>
             <Text>{new Date(movie.release_date).getFullYear()}</Text>
-            {hover && <Text>{movie.overview}</Text>}
+            {hover && (
+              <>
+                <Text mt="15px">{movie.overview}</Text>
+                <Flex mt='15px'>
+                  <Flex mr="10px" flexDir="column">
+                    <Text fontWeight="bold">Director</Text>
+                    <Text fontWeight="bold" mt="7px">
+                      Stars
+                    </Text>
+                  </Flex>
+                  <Flex flexDir="column">
+                    <Text>{movie.director}</Text>
+                    <Flex flexDir="column" mt="7px">
+                      <Text>{movie.cast[0]}</Text>
+                      <Text>{movie.cast[1]}</Text>
+                    </Flex>
+                  </Flex>
+                </Flex>
+              </>
+            )}
           </Box>
         </Box>
         <Image
