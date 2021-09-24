@@ -65,7 +65,7 @@ const StartedRoom = (props) => {
 
   return (
     <Box>
-      <MovieImage movie={movie} />
+      <MovieImage movie={movie} onMakeResponse={newMovieHandler}/>
       <Flex justifyContent="space-evenly" marginY="20px">
         <Box
           as="button"

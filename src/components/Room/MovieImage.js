@@ -1,9 +1,24 @@
 import {Image, Box, Text, AspectRatio, Flex} from "@chakra-ui/react";
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  AnimatePresence,
+} from "framer-motion";
 import {useState} from "react";
+import RejectText from "./RejectText";
+import ApproveText from "./ApproveText";
+
+const responseThreshold = 150;
 
 const MovieImage = (props) => {
-  const {movie} = props;
+  const {movie, onMakeResponse} = props;
   const [hover, setHover] = useState(false);
+  const x = useMotionValue(0);
+  const input = [-200, 0, 200];
+  const output = [-15, 0, 15];
+  const rotate = useTransform(x, input, output);
+  const [response, setResponse] = useState("");
 
   const mouseEnterHandler = () => {
     setHover(true);
@@ -11,6 +26,25 @@ const MovieImage = (props) => {
 
   const mouseLeaveHandler = () => {
     setHover(false);
+  };
+
+  const handleSetResponse = (e, info) => {
+    const offsetAmt = info.offset.x;
+
+    if (offsetAmt < -responseThreshold) {
+      setResponse("reject");
+    } else if (offsetAmt > responseThreshold) {
+      setResponse("approve");
+    } else {
+      setResponse("");
+    }
+  };
+
+  const handleMakeResponse = (e) => {
+    setResponse("");
+    if (response) {
+      onMakeResponse(e, response);
+    }
   };
 
   return (
@@ -22,6 +56,13 @@ const MovieImage = (props) => {
       overflow="hidden"
       onMouseEnter={mouseEnterHandler}
       onMouseLeave={mouseLeaveHandler}
+      as={motion.div}
+      drag="x"
+      dragConstraints={{left: 0, right: 0}}
+      dragElastic={0.5}
+      style={{x, rotate}}
+      onDragEnd={handleMakeResponse}
+      onDrag={handleSetResponse}
     >
       <Box pos="relative">
         <Box
@@ -38,6 +79,12 @@ const MovieImage = (props) => {
           alignItems="flex-end"
           zIndex={1}
         >
+          <AnimatePresence>
+            {response === "reject" && <RejectText key='reject-text'/>}
+          </AnimatePresence>
+          <AnimatePresence>
+            {response === "approve" && <ApproveText key='approve-text'/>}
+          </AnimatePresence>
           <Box color="white">
             <Text fontSize="2xl" fontWeight="bold">
               {movie.title}
@@ -46,7 +93,7 @@ const MovieImage = (props) => {
             {hover && (
               <>
                 <Text mt="15px">{movie.overview}</Text>
-                <Flex mt='15px'>
+                <Flex mt="15px">
                   <Flex mr="10px" flexDir="column">
                     <Text fontWeight="bold">Director</Text>
                     <Text fontWeight="bold" mt="7px">

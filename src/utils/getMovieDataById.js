@@ -2,6 +2,9 @@ import axios from "axios";
 
 const getDirector = (crew) => {
   const director = crew.find((element) => element.job > "Director");
+  if (!director) {
+    return "No director on hand";
+  }
   return director.name;
 };
 

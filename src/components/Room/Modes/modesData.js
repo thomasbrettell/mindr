@@ -9,6 +9,11 @@ const modesData = [
     value: "popular",
     color: "cyan",
   },
+  // {
+  //   name: "On Netlix",
+  //   value: "netflix",
+  //   color: "red",
+  // },
 ];
 
 export default modesData;

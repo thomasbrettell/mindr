@@ -1,5 +1,6 @@
 import {Box} from "@chakra-ui/react";
 import {update} from "@firebase/database";
+import {motion} from "framer-motion";
 
 const Mode = (props) => {
   const {name, value, color, selected, isHost, roomRef} = props;
@@ -29,13 +30,23 @@ const Mode = (props) => {
       {name}
       {selected && (
         <Box
+          as={motion.div}
           pos="absolute"
-          w="100%"
-          h="100%"
-          transform="scaleX(1.075) scaleY(1.2)"
+          w="calc(100% + 14px);"
+          h="calc(100% + 14px);"
           border="4px solid"
           borderColor={`${color}.300`}
           borderRadius="11px"
+          initial={false}
+          animate={{
+            borderColor: `${color}.300`,
+            transition: {
+              type: "spring",
+              stiffness: 500,
+              damping: 30,
+            },
+          }}
+          layoutId="outline"
         />
       )}
     </Box>

@@ -56,17 +56,28 @@ const RoomPage = () => {
   }, [history, roomId, userId, dispatch, userRef, roomRef]);
 
   useEffect(() => {
-    if (Object.keys(roomData).length > 0 && Object.keys(userData).length > 0) {
+    if (
+      roomData &&
+      userData &&
+      Object.keys(roomData).length > 0 &&
+      Object.keys(userData).length > 0
+    ) {
       setLoading(false);
+    } else if (!roomData || !userData) {
+      history.replace("/");
     }
-  }, [roomData, userData]);
+
+    return () => {
+      setLoading(true);
+    };
+  }, [roomData, userData, history]);
 
   if (loading) {
     return <p>Loading...</p>;
   }
 
   if (roomData.started) {
-    return <StartedRoom roomRef={roomRef} roomData={roomData}/>;
+    return <StartedRoom roomRef={roomRef} roomData={roomData} />;
   }
 
   return (
