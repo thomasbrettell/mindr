@@ -1,4 +1,4 @@
-import {Box, Flex} from "@chakra-ui/react";
+import {Box, Flex, AspectRatio} from "@chakra-ui/react";
 import {useEffect, useState, useCallback} from "react";
 import CloseIcon from "../../assets/CloseIcon";
 import TickIcon from "../../assets/TickIcon";
@@ -15,57 +15,86 @@ const generateRandomMovie = (modeData) => {
 };
 
 const StartedRoom = (props) => {
-  const [movie, setMovie] = useState();
-  const [movieI, setMovieI] = useState(0);
   const {roomData, roomRef} = props;
+  const [movies, setMovies] = useState([]);
+  const [movieI, setMovieI] = useState(0);
+  const [initialLoad, setInitialLoad] = useState(true);
+
+  console.log(movies)
 
   const pushNewMovie = useCallback(() => {
-    push(
+    return push(
       child(roomRef, "/movieList"),
       generateRandomMovie(getMovieListData(roomData.mode))
     );
   }, [roomRef, roomData.mode]);
 
-  useEffect(() => {
-    if (roomData.movieList.length === 0) {
-      return;
-    }
+  const addNextMovie = async () => {
+    const newMovie = await getMovieDataById(roomData.movieList[movieI]);
+    setMovies((prevMovies) => [...prevMovies, newMovie]);
+  };
 
-    const fetchData = async () => {
-      setMovie(await getMovieDataById(roomData.movieList[movieI]));
-    };
-    fetchData();
-  }, [movieI, roomData.movieList]);
-
-  const newMovieHandler = (e, response) => {
+  const responseHandler = (e, response) => {
     setDoc(
-      doc(firestore, "movieData", `${movie.id}`),
+      doc(firestore, "movieData", `${movies[0].id}`),
       {
-        title: movie.title,
-        release_date: movie.release_date,
-        director: movie.director,
-        cast: movie.cast,
+        title: movies[0].title,
+        release_dsate: movies[0].release_date,
+        director: movies[0].director,
+        cast: movies[0].cast,
         [response]: increment(1),
-        genres: movie.genres,
+        genres: movies[0].genres,
       },
       {merge: true}
     );
+
     setMovieI(movieI + 1);
     pushNewMovie();
+    setMovies((prevMovies) => prevMovies.slice(1));
+    addNextMovie();
   };
 
   useEffect(() => {
+    if (initialLoad && roomData.movieList.length) {
+      if (movieI === 2) {
+        setInitialLoad(false);
+      }
+      const fetchData = async () => {
+        const newMovie = await getMovieDataById(roomData.movieList[movieI]);
+        setMovieI(movieI + 1);
+        setMovies((prevMovies) => [...prevMovies, newMovie]);
+      };
+      fetchData();
+    }
+  }, [movieI, roomData.movieList, initialLoad]);
+
+  useEffect(() => {
+    pushNewMovie();
+    pushNewMovie();
     pushNewMovie();
     pushNewMovie();
   }, [pushNewMovie]);
 
-  if (!movie) {
+  if (movies.length === 0) {
     return <p>Loading...</p>;
   }
 
   return (
     <Box>
-      <MovieImage movie={movie} onMakeResponse={newMovieHandler}/>
+      <Box pos="relative">
+        <AspectRatio ratio={2 / 3} h="full" maxH="550px" overflow="hidden">
+          <Box />
+        </AspectRatio>
+        {movies.map((movie, index) => (
+          <MovieImage
+            key={movie.id}
+            id={movie.id}
+            movie={movie}
+            onMakeResponse={responseHandler}
+            z={movies.length - index}
+          />
+        ))}
+      </Box>
       <Flex justifyContent="space-evenly" marginY="20px">
         <Box
           as="button"
@@ -78,7 +107,7 @@ const StartedRoom = (props) => {
           d="flex"
           justifyContent="center"
           alignItems="center"
-          onClick={(e) => newMovieHandler(e, "reject")}
+          onClick={(e) => responseHandler(e, "reject")}
           transition="background .1s ease-in-out, transform .1s ease-in-out"
           _hover={{
             background: "red.50",
@@ -102,7 +131,7 @@ const StartedRoom = (props) => {
           d="flex"
           justifyContent="center"
           alignItems="center"
-          onClick={(e) => newMovieHandler(e, "approve")}
+          onClick={(e) => responseHandler(e, "approve")}
           transition="background .1s ease-in-out, transform .1s ease-in-out"
           _hover={{
             background: "green.50",
