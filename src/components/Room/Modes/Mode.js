@@ -24,7 +24,7 @@ const Mode = (props) => {
       color="white"
       cursor="pointer"
       as="button"
-      onClick={isHost ? selectHandler : ""}
+      onClick={isHost ? selectHandler : undefined}
       pos="relative"
     >
       {name}

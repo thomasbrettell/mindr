@@ -20,8 +20,6 @@ const StartedRoom = (props) => {
   const [movieI, setMovieI] = useState(0);
   const [initialLoad, setInitialLoad] = useState(true);
 
-  console.log(movies)
-
   const pushNewMovie = useCallback(() => {
     return push(
       child(roomRef, "/movieList"),
@@ -55,19 +53,23 @@ const StartedRoom = (props) => {
   };
 
   useEffect(() => {
-    if (initialLoad && roomData.movieList.length) {
+    if (initialLoad && roomData.movieList.length >= 3) {
       if (movieI === 2) {
         setInitialLoad(false);
       }
       const fetchData = async () => {
         const newMovie = await getMovieDataById(roomData.movieList[movieI]);
-        setMovieI(movieI + 1);
-        setMovies((prevMovies) => [...prevMovies, newMovie]);
+        const newMovie2 = await getMovieDataById(roomData.movieList[movieI + 1]);
+        const newMovie3 = await getMovieDataById(roomData.movieList[movieI + 2]);
+        setMovieI(movieI + 3);
+        setMovies((prevMovies) => [...prevMovies, newMovie, newMovie2, newMovie3]);
       };
       fetchData();
+      setInitialLoad(false);
     }
   }, [movieI, roomData.movieList, initialLoad]);
 
+  //not like this // probs do server side, or host only client side?
   useEffect(() => {
     pushNewMovie();
     pushNewMovie();
