@@ -4,7 +4,6 @@ function MindrLogo() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="370"
       fill="none"
       viewBox="0 0 370 98"
     >

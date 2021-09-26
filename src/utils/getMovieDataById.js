@@ -21,12 +21,13 @@ const getMovieDataById = async (movieId) => {
           `https://api.themoviedb.org/3/movie/${movieData.id}/credits?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
         )
         .then((response) => {
-          console.log(response)
           movieData.director = getDirector(response.data.crew);
-          movieData.cast = [
-            response.data.cast[0].name || 'N/A',
-            response.data.cast[1].name || 'N/A',
-          ];
+          movieData.cast = []
+          for(let i = 0; i !== 2; i++) {
+            if(response.data.cast[i]) {
+              movieData.cast.push(response.data.cast[i].name)
+            }
+          }
         });
     });
 

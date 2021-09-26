@@ -1,4 +1,4 @@
-import Header from './Header';
+import Header from './Header/Header';
 import { Container } from '@chakra-ui/react';
 
 const Layout = ({ children }) => {

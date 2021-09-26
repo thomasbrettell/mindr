@@ -1,7 +1,8 @@
 import {Container, Box} from "@chakra-ui/react";
-import MindrLogo from "../assets/MindrLogo";
+import MindrLogo from "../../assets/MindrLogo";
 import {Link as ChakraLink} from "@chakra-ui/react";
 import {Link} from "react-router-dom";
+import BetaText from "./BetaText";
 
 const Header = () => {
   return (
@@ -15,8 +16,9 @@ const Header = () => {
         mt="7"
         minW="container.min"
       >
-        <ChakraLink as={Link} to="/" d="flex">
+        <ChakraLink as={Link} to="/" d="flex" pos='relative'>
           <MindrLogo />
+          <BetaText />
         </ChakraLink>
       </Container>
     </Box>

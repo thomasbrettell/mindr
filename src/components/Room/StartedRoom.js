@@ -2,12 +2,19 @@ import {Box, Flex, AspectRatio} from "@chakra-ui/react";
 import {useEffect, useState, useCallback} from "react";
 import CloseIcon from "../../assets/CloseIcon";
 import TickIcon from "../../assets/TickIcon";
-import {push, child} from "@firebase/database";
+import {
+  push,
+  child,
+  update,
+  increment as dbIncrement,
+} from "@firebase/database";
 import MovieImage from "./MovieImage";
 import getMovieListData from "../../utils/getMovieListData";
-import {doc, setDoc, increment} from "firebase/firestore";
+import {doc, setDoc, increment as fsIncrement} from "firebase/firestore";
 import {firestore} from "../../firebase/firebaseClient";
 import getMovieDataById from "../../utils/getMovieDataById";
+import {AnimatePresence} from "framer-motion";
+import FoundMatchModal from "./FoundMatchModal";
 
 const generateRandomMovie = (modeData) => {
   const randomI = Math.floor(Math.random() * modeData.length);
@@ -15,10 +22,22 @@ const generateRandomMovie = (modeData) => {
 };
 
 const StartedRoom = (props) => {
-  const {roomData, roomRef} = props;
+  const {roomData, roomRef, userData} = props;
   const [movies, setMovies] = useState([]);
   const [movieI, setMovieI] = useState(0);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [foundMatch, setFoundMatch] = useState()
+
+  console.log(foundMatch)
+
+  useEffect(() => {
+    const foundApprovedMovie = roomData.responses.find(
+      (movie) => {
+        return movie.approvals === roomData.users.length
+      }
+    );
+    foundApprovedMovie && setFoundMatch(foundApprovedMovie.id)
+  }, [roomData.responses, roomData.users.length]);
 
   const pushNewMovie = useCallback(() => {
     return push(
@@ -33,6 +52,7 @@ const StartedRoom = (props) => {
   };
 
   const responseHandler = (e, response) => {
+    //storing longterm response data on firestore
     setDoc(
       doc(firestore, "movieData", `${movies[0].id}`),
       {
@@ -40,11 +60,15 @@ const StartedRoom = (props) => {
         release_dsate: movies[0].release_date,
         director: movies[0].director,
         cast: movies[0].cast,
-        [response]: increment(1),
+        [response]: fsIncrement(1),
         genres: movies[0].genres,
       },
       {merge: true}
     );
+
+    update(child(roomRef, `/responses/${movies[0].id}`), {
+      [response]: dbIncrement(1),
+    });
 
     setMovieI(movieI + 1);
     pushNewMovie();
@@ -59,10 +83,19 @@ const StartedRoom = (props) => {
       }
       const fetchData = async () => {
         const newMovie = await getMovieDataById(roomData.movieList[movieI]);
-        const newMovie2 = await getMovieDataById(roomData.movieList[movieI + 1]);
-        const newMovie3 = await getMovieDataById(roomData.movieList[movieI + 2]);
+        const newMovie2 = await getMovieDataById(
+          roomData.movieList[movieI + 1]
+        );
+        const newMovie3 = await getMovieDataById(
+          roomData.movieList[movieI + 2]
+        );
         setMovieI(movieI + 3);
-        setMovies((prevMovies) => [...prevMovies, newMovie, newMovie2, newMovie3]);
+        setMovies((prevMovies) => [
+          ...prevMovies,
+          newMovie,
+          newMovie2,
+          newMovie3,
+        ]);
       };
       fetchData();
       setInitialLoad(false);
@@ -71,31 +104,37 @@ const StartedRoom = (props) => {
 
   //not like this // probs do server side, or host only client side?
   useEffect(() => {
-    pushNewMovie();
-    pushNewMovie();
-    pushNewMovie();
-    pushNewMovie();
-  }, [pushNewMovie]);
+    if (userData.isHost) {
+      pushNewMovie();
+      pushNewMovie();
+      pushNewMovie();
+      pushNewMovie();
+    }
+  }, [pushNewMovie, userData.isHost]);
 
   if (movies.length === 0) {
     return <p>Loading...</p>;
   }
 
   return (
+    <>
+    {foundMatch && <FoundMatchModal matchId={foundMatch}/>}
     <Box>
       <Box pos="relative">
         <AspectRatio ratio={2 / 3} h="full" maxH="550px" overflow="hidden">
           <Box />
         </AspectRatio>
-        {movies.map((movie, index) => (
-          <MovieImage
-            key={movie.id}
-            id={movie.id}
-            movie={movie}
-            onMakeResponse={responseHandler}
-            z={movies.length - index}
-          />
-        ))}
+        <AnimatePresence>
+          {movies.map((movie, index) => (
+            <MovieImage
+              key={movie.id}
+              id={movie.id}
+              movie={movie}
+              onMakeResponse={responseHandler}
+              z={movies.length - index}
+            />
+          ))}
+        </AnimatePresence>
       </Box>
       <Flex justifyContent="space-evenly" marginY="20px">
         <Box
@@ -148,6 +187,7 @@ const StartedRoom = (props) => {
         </Box>
       </Flex>
     </Box>
+    </>
   );
 };
 

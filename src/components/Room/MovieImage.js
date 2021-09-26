@@ -41,7 +41,6 @@ const MovieImage = (props) => {
   };
 
   const handleMakeResponse = (e) => {
-    setResponse("");
     if (response) {
       onMakeResponse(e, response);
     }
@@ -50,23 +49,35 @@ const MovieImage = (props) => {
   return (
     <Box
       pos="absolute"
-      top='0'
-      left='0'
+      top="0"
+      left="0"
       ratio={2 / 3}
       h="full"
       w="full"
       zIndex={z}
       borderRadius="10px"
       overflow="hidden"
+      background="white"
       onMouseEnter={mouseEnterHandler}
       onMouseLeave={mouseLeaveHandler}
       as={motion.div}
       drag
       dragConstraints={{left: 0, right: 0, top: 0, bottom: 0}}
       dragElastic={0.5}
+      dragTransition={{bounceStiffness: 400, bounceDamping: 20}}
       style={{x, rotate}}
       onDragEnd={handleMakeResponse}
       onDrag={handleSetResponse}
+      whileTap={{
+        scale: 1.025,
+        boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px",
+      }}
+      initial={{opacity: 0}}
+      animate={{opacity: 1}}
+      exit={{
+        x: response === "approve" ? window.innerWidth : -window.innerWidth,
+        transition: {duration: 0.5},
+      }}
     >
       <Box
         pos="absolute"
@@ -106,8 +117,9 @@ const MovieImage = (props) => {
                 <Flex flexDir="column">
                   <Text>{movie.director}</Text>
                   <Flex flexDir="column" mt="7px">
-                    <Text>{movie.cast[0]}</Text>
-                    <Text>{movie.cast[1]}</Text>
+                    {!movie.cast.length && <Text>N/A</Text>}
+                    {!!movie.cast.length &&
+                      movie.cast.map((el) => <Text key={el}>{el}</Text>)}
                   </Flex>
                 </Flex>
               </Flex>
@@ -123,6 +135,7 @@ const MovieImage = (props) => {
         transform="translate(-50%, -50%)"
         alt={movie.title}
         loading="lazy"
+        background="white"
       />
     </Box>
   );

@@ -49,6 +49,10 @@ exports.joinRoom = functions.https.onCall(async (data, context) => {
       const data = snapshot.val();
       for (const key in data) {
         if (data[key].roomCode === roomCode) {
+          if(data[key].started === true) {
+            roomId = 'started'
+            return
+          }
           roomId = key;
           return;
         }
@@ -63,6 +67,14 @@ exports.joinRoom = functions.https.onCall(async (data, context) => {
       "not-found",
       "No room associated with that code was found.",
       {message: "No room associated with that code was found."}
+    );
+  }
+
+  if(roomId === 'started') {
+    throw new functions.https.HttpsError(
+      "permission-denied",
+      "This room has already started",
+      {message: "This room has already started"}
     );
   }
 

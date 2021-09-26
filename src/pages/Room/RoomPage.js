@@ -9,7 +9,7 @@ import {
   goOnline,
 } from "firebase/database";
 import {useSelector} from "react-redux";
-import TransformRoomData from "../../utils/transformRoomData";
+import transformRoomData from "../../utils/transformRoomData";
 import {roomActions} from "../../store/room-slice";
 import {useDispatch} from "react-redux";
 import WaitingRoom from "../../components/Room/WaitingRoom";
@@ -36,7 +36,7 @@ const RoomPage = () => {
         const data = snapshot.val();
 
         if (data) {
-          const transformedData = TransformRoomData(data);
+          const transformedData = transformRoomData(data);
           const user = transformedData.users.find((user) => user.id === userId);
           setUserData(user);
           setRoomData(transformedData);
@@ -77,7 +77,13 @@ const RoomPage = () => {
   }
 
   if (roomData.started) {
-    return <StartedRoom roomRef={roomRef} roomData={roomData} />;
+    return (
+      <StartedRoom
+        roomRef={roomRef}
+        roomData={roomData}
+        userData={userData}
+      />
+    );
   }
 
   return (
