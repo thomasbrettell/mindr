@@ -5,14 +5,16 @@ import {
   useTransform,
   AnimatePresence,
 } from "framer-motion";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import RejectText from "./RejectText";
 import ApproveText from "./ApproveText";
 
 const responseThreshold = 150;
 
 const MovieImage = (props) => {
-  const {movie, onMakeResponse, z} = props;
+  const {movie, onMakeResponse, z, currentResponse} = props;
+  const [initialLoad, setInitialLoad] = useState(true);
+
   const [hover, setHover] = useState(false);
   const x = useMotionValue(0);
   const input = [-200, 0, 200];
@@ -45,6 +47,16 @@ const MovieImage = (props) => {
       onMakeResponse(e, response);
     }
   };
+
+  useEffect(() => {
+    if (!initialLoad && currentResponse) {
+      setResponse(currentResponse);
+      onMakeResponse("", currentResponse);
+    } else {
+      setInitialLoad(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentResponse, onMakeResponse]);
 
   return (
     <Box

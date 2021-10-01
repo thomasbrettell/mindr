@@ -22,22 +22,17 @@ const generateRandomMovie = (modeData) => {
 };
 
 const StartedRoom = (props) => {
-  const {roomData, roomRef, userData} = props;
+  const {roomData, roomRef, userData, userRef} = props;
   const [movies, setMovies] = useState([]);
   const [movieI, setMovieI] = useState(0);
   const [initialLoad, setInitialLoad] = useState(true);
-  const [foundMatch, setFoundMatch] = useState()
-
-  console.log(foundMatch)
+  const [foundMatch, setFoundMatch] = useState();
+  const [currentResponse, setCurrentResponse] = useState("");
+  const {isHost} = userData || {};
 
   useEffect(() => {
-    const foundApprovedMovie = roomData.responses.find(
-      (movie) => {
-        return movie.approvals === roomData.users.length
-      }
-    );
-    foundApprovedMovie && setFoundMatch(foundApprovedMovie.id)
-  }, [roomData.responses, roomData.users.length]);
+    setFoundMatch(roomData.match);
+  }, [roomData.match]);
 
   const pushNewMovie = useCallback(() => {
     return push(
@@ -52,12 +47,13 @@ const StartedRoom = (props) => {
   };
 
   const responseHandler = (e, response) => {
-    //storing longterm response data on firestore
+    setCurrentResponse("");
+
     setDoc(
       doc(firestore, "movieData", `${movies[0].id}`),
       {
         title: movies[0].title,
-        release_dsate: movies[0].release_date,
+        release_date: movies[0].release_date,
         director: movies[0].director,
         cast: movies[0].cast,
         [response]: fsIncrement(1),
@@ -104,13 +100,13 @@ const StartedRoom = (props) => {
 
   //not like this // probs do server side, or host only client side?
   useEffect(() => {
-    if (userData.isHost) {
+    if (isHost) {
       pushNewMovie();
       pushNewMovie();
       pushNewMovie();
       pushNewMovie();
     }
-  }, [pushNewMovie, userData.isHost]);
+  }, [pushNewMovie, isHost]);
 
   if (movies.length === 0) {
     return <p>Loading...</p>;
@@ -118,75 +114,85 @@ const StartedRoom = (props) => {
 
   return (
     <>
-    {foundMatch && <FoundMatchModal matchId={foundMatch}/>}
-    <Box>
-      <Box pos="relative">
-        <AspectRatio ratio={2 / 3} h="full" maxH="550px" overflow="hidden">
-          <Box />
-        </AspectRatio>
-        <AnimatePresence>
-          {movies.map((movie, index) => (
-            <MovieImage
-              key={movie.id}
-              id={movie.id}
-              movie={movie}
-              onMakeResponse={responseHandler}
-              z={movies.length - index}
-            />
-          ))}
-        </AnimatePresence>
+      {foundMatch && (
+        <FoundMatchModal
+          roomRef={roomRef}
+          matchData={foundMatch}
+          userRef={userRef}
+          userData={userData}
+        />
+      )}
+      <Box>
+        <Box pos="relative">
+          <AspectRatio ratio={2 / 3} h="full" maxH="550px" overflow="hidden">
+            <Box />
+          </AspectRatio>
+          <AnimatePresence>
+            {movies.map((movie, index) => (
+              <MovieImage
+                key={movie.id}
+                id={movie.id}
+                movie={movie}
+                onMakeResponse={responseHandler}
+                z={movies.length - index}
+                currentResponse={
+                  index === 0 && currentResponse ? currentResponse : ""
+                }
+              />
+            ))}
+          </AnimatePresence>
+        </Box>
+        <Flex justifyContent="space-evenly" marginY="20px">
+          <Box
+            as="button"
+            h="60px"
+            w="60px"
+            boxShadow="lg"
+            rounded="md"
+            borderRadius="full"
+            color="red.400"
+            d="flex"
+            justifyContent="center"
+            alignItems="center"
+            onClick={() => setCurrentResponse("reject")}
+            transition="background .1s ease-in-out, transform .1s ease-in-out"
+            _hover={{
+              background: "red.50",
+            }}
+            _active={{
+              transform: "scale(0.95)",
+            }}
+          >
+            <Box w="40px" h="40px">
+              <CloseIcon />
+            </Box>
+          </Box>
+          <Box
+            as="button"
+            h="60px"
+            w="60px"
+            boxShadow="lg"
+            rounded="md"
+            borderRadius="full"
+            color="green.400"
+            d="flex"
+            justifyContent="center"
+            alignItems="center"
+            onClick={() => setCurrentResponse("approve")}
+            transition="background .1s ease-in-out, transform .1s ease-in-out"
+            _hover={{
+              background: "green.50",
+            }}
+            _active={{
+              transform: "scale(0.95)",
+            }}
+          >
+            <Box w="40px" h="40px">
+              <TickIcon />
+            </Box>
+          </Box>
+        </Flex>
       </Box>
-      <Flex justifyContent="space-evenly" marginY="20px">
-        <Box
-          as="button"
-          h="60px"
-          w="60px"
-          boxShadow="lg"
-          rounded="md"
-          borderRadius="full"
-          color="red.400"
-          d="flex"
-          justifyContent="center"
-          alignItems="center"
-          onClick={(e) => responseHandler(e, "reject")}
-          transition="background .1s ease-in-out, transform .1s ease-in-out"
-          _hover={{
-            background: "red.50",
-          }}
-          _active={{
-            transform: "scale(0.95)",
-          }}
-        >
-          <Box w="40px" h="40px">
-            <CloseIcon />
-          </Box>
-        </Box>
-        <Box
-          as="button"
-          h="60px"
-          w="60px"
-          boxShadow="lg"
-          rounded="md"
-          borderRadius="full"
-          color="green.400"
-          d="flex"
-          justifyContent="center"
-          alignItems="center"
-          onClick={(e) => responseHandler(e, "approve")}
-          transition="background .1s ease-in-out, transform .1s ease-in-out"
-          _hover={{
-            background: "green.50",
-          }}
-          _active={{
-            transform: "scale(0.95)",
-          }}
-        >
-          <Box w="40px" h="40px">
-            <TickIcon />
-          </Box>
-        </Box>
-      </Flex>
-    </Box>
     </>
   );
 };

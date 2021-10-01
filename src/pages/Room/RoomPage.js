@@ -14,6 +14,7 @@ import {roomActions} from "../../store/room-slice";
 import {useDispatch} from "react-redux";
 import WaitingRoom from "../../components/Room/WaitingRoom";
 import StartedRoom from "../../components/Room/StartedRoom";
+import ResultsRoom from "../../components/Room/ResultsRoom";
 
 const RoomPage = () => {
   const history = useHistory();
@@ -76,14 +77,19 @@ const RoomPage = () => {
     return <p>Loading...</p>;
   }
 
-  if (roomData.started) {
+  if (roomData.stage === "started") {
     return (
       <StartedRoom
         roomRef={roomRef}
         roomData={roomData}
         userData={userData}
+        userRef={userRef}
       />
     );
+  }
+
+  if (roomData.stage === "results") {
+    return <ResultsRoom roomData={roomData} />;
   }
 
   return (

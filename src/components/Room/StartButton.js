@@ -6,7 +6,7 @@ const StartButton = (props) => {
 
   const startHandler = () => {
     update(roomRef, {
-      started: true,
+      stage: 'started',
     });
   };
 
