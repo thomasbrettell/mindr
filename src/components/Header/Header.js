@@ -13,7 +13,7 @@ const Header = () => {
         display="flex"
         justifyContent="center"
         paddingY="2"
-        mt="7"
+        mt="20px"
         minW="container.min"
       >
         <ChakraLink as={Link} to="/" d="flex" pos='relative'>
