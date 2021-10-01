@@ -15,6 +15,7 @@ import {useDispatch} from "react-redux";
 import WaitingRoom from "../../components/Room/WaitingRoom";
 import StartedRoom from "../../components/Room/StartedRoom";
 import ResultsRoom from "../../components/Room/ResultsRoom";
+import {appActions} from "../../store/app-slice";
 
 const RoomPage = () => {
   const history = useHistory();
@@ -72,6 +73,12 @@ const RoomPage = () => {
       setLoading(true);
     };
   }, [roomData, userData, history]);
+
+  useEffect(() => {
+    if (roomData.stage) {
+      dispatch(appActions.SET_ROOM_STAGE(roomData.stage));
+    }
+  }, [dispatch, roomData.stage]);
 
   if (loading) {
     return <p>Loading...</p>;

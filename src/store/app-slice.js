@@ -5,6 +5,7 @@ const appSlice = createSlice({
   initialState: {
     appIsLoaded: false,
     userName: "",
+    roomStage: "",
   },
   reducers: {
     SET_INITIAL_LOAD(state) {
@@ -12,6 +13,9 @@ const appSlice = createSlice({
     },
     SET_USER_NAME(state, action) {
       state.userName = action.payload;
+    },
+    SET_ROOM_STAGE(state, action) {
+      state.roomStage = action.payload;
     },
   },
 });
