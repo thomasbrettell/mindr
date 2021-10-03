@@ -15,7 +15,7 @@ const MovieImage = (props) => {
   const {movie, onMakeResponse, z, currentResponse} = props;
   const [initialLoad, setInitialLoad] = useState(true);
 
-  const [hover, setHover] = useState(false);
+  const [hover, setHover] = useState(true);
   const x = useMotionValue(0);
   const input = [-200, 0, 200];
   const output = [-15, 0, 15];
