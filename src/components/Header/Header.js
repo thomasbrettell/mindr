@@ -23,9 +23,18 @@ const Header = () => {
         mt="7"
         minW="container.min"
       >
-        <ChakraLink as={Link} to="/" d="flex" pos="relative">
-          <MindrLogo />
-          <BetaText />
+        <ChakraLink
+          as={Link}
+          to="/"
+          d="flex"
+          pos="relative"
+          w="full"
+          justifyContent="center"
+        >
+          <Box d='inline-flex' pos='relative'>
+            <MindrLogo />
+            <BetaText />
+          </Box>
         </ChakraLink>
       </Container>
     </Box>

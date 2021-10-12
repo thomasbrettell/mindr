@@ -1,3 +1,5 @@
+//transfer to global modal component
+
 import {
   Modal,
   ModalOverlay,

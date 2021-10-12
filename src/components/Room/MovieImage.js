@@ -8,27 +8,20 @@ import {
 import {useEffect, useState} from "react";
 import RejectText from "./RejectText";
 import ApproveText from "./ApproveText";
+import InfoIcon from "../../assets/InfoIcon";
 
-const responseThreshold = 150;
+const responseThreshold = 100;
 
 const MovieImage = (props) => {
   const {movie, onMakeResponse, z, currentResponse} = props;
   const [initialLoad, setInitialLoad] = useState(true);
 
-  const [hover, setHover] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
   const x = useMotionValue(0);
   const input = [-200, 0, 200];
   const output = [-15, 0, 15];
   const rotate = useTransform(x, input, output);
   const [response, setResponse] = useState("");
-
-  const mouseEnterHandler = () => {
-    setHover(true);
-  };
-
-  const mouseLeaveHandler = () => {
-    setHover(false);
-  };
 
   const handleSetResponse = (e, info) => {
     const offsetAmt = info.offset.x;
@@ -70,8 +63,6 @@ const MovieImage = (props) => {
       borderRadius="10px"
       overflow="hidden"
       background="white"
-      onMouseEnter={mouseEnterHandler}
-      onMouseLeave={mouseLeaveHandler}
       as={motion.div}
       drag
       dragConstraints={{left: 0, right: 0, top: 0, bottom: 0}}
@@ -80,7 +71,7 @@ const MovieImage = (props) => {
       style={{x, rotate}}
       onDragEnd={handleMakeResponse}
       onDrag={handleSetResponse}
-      whileTap={{
+      whileDrag={{
         scale: 1.025,
         boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px",
       }}
@@ -98,12 +89,13 @@ const MovieImage = (props) => {
         d="flex"
         p="15px"
         bgGradient={
-          !hover
+          !showDetails
             ? "linear(to-t, #000000c1, #00000000, #00000000, #00000000)"
             : "linear(to-t, #000000c1, #000000c1, #000000c1, #0000006e, #00000000)"
         }
         alignItems="flex-end"
         zIndex={1}
+        justifyContent="space-between"
       >
         <AnimatePresence>
           {response === "reject" && <RejectText key="reject-text" />}
@@ -116,27 +108,19 @@ const MovieImage = (props) => {
             {movie.title}
           </Text>
           <Text>{new Date(movie.release_date).getFullYear()}</Text>
-          {hover && (
-            <>
-              <Text mt="15px">{movie.overview}</Text>
-              <Flex mt="15px">
-                <Flex mr="10px" flexDir="column">
-                  <Text fontWeight="bold">Director</Text>
-                  <Text fontWeight="bold" mt="7px">
-                    Stars
-                  </Text>
-                </Flex>
-                <Flex flexDir="column">
-                  <Text>{movie.director}</Text>
-                  <Flex flexDir="column" mt="7px">
-                    {!movie.cast.length && <Text>N/A</Text>}
-                    {!!movie.cast.length &&
-                      movie.cast.map((el) => <Text key={el}>{el}</Text>)}
-                  </Flex>
-                </Flex>
-              </Flex>
-            </>
-          )}
+          {showDetails && <MovieImageDetails movie={movie} />}
+        </Box>
+        <Box
+          as="button"
+          minW="24px"
+          minH="24px"
+          w="24px"
+          h="24px"
+          color="white"
+          m="24px 12px"
+          onClick={() => setShowDetails(!showDetails)}
+        >
+          <InfoIcon />
         </Box>
       </Box>
       <Image
@@ -154,3 +138,27 @@ const MovieImage = (props) => {
 };
 
 export default MovieImage;
+
+const MovieImageDetails = ({movie}) => {
+  return (
+    <>
+      <Text mt="15px">{movie.overview}</Text>
+      <Flex mt="15px">
+        <Flex mr="10px" flexDir="column">
+          <Text fontWeight="bold">Director</Text>
+          <Text fontWeight="bold" mt="7px">
+            Stars
+          </Text>
+        </Flex>
+        <Flex flexDir="column">
+          <Text>{movie.director}</Text>
+          <Flex flexDir="column" mt="7px">
+            {!movie.cast.length && <Text>N/A</Text>}
+            {!!movie.cast.length &&
+              movie.cast.map((el) => <Text key={el}>{el}</Text>)}
+          </Flex>
+        </Flex>
+      </Flex>
+    </>
+  );
+};
