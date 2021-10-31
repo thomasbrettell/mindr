@@ -2,6 +2,7 @@ import {
   Modal as ChakraModal,
   ModalOverlay,
   ModalContent,
+  ModalCloseButton
 } from "@chakra-ui/react";
 
 const Modal = ({children, open, closeHandler}) => {
@@ -11,8 +12,11 @@ const Modal = ({children, open, closeHandler}) => {
 
   return (
     <ChakraModal isOpen={open} onOverlayClick={clickHandler}>
-      <ModalOverlay />
-      <ModalContent>{children}</ModalContent>
+      <ModalOverlay onClick={clickHandler} />
+      <ModalContent>
+        <ModalCloseButton />
+        {children}
+      </ModalContent>
     </ChakraModal>
   );
 };
