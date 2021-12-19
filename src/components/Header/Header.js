@@ -2,7 +2,6 @@ import {Container, Box} from "@chakra-ui/react";
 import MindrLogo from "../../assets/MindrLogo";
 import {Link as ChakraLink} from "@chakra-ui/react";
 import {Link} from "react-router-dom";
-import BetaText from "./BetaText";
 import {useSelector} from "react-redux";
 
 const Header = () => {
@@ -33,7 +32,6 @@ const Header = () => {
         >
           <Box d='inline-flex' pos='relative'>
             <MindrLogo />
-            <BetaText />
           </Box>
         </ChakraLink>
       </Container>
